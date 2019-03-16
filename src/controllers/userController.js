@@ -2,7 +2,6 @@ const userQueries = require("../db/queries.users.js");
 const passport = require("passport");
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-console.log(process.env.SENDGRID_API_KEY);
 
 module.exports = {
     signUp(req, res, next) {
