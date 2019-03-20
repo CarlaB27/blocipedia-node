@@ -97,6 +97,31 @@ describe("routes : users", () => {
       );
     });
 
+    it("should create a new user with default role of standard (0)", (done) => {
+      const options = {
+        url: base + "signup",
+        form: {
+          name: "John Bonham",
+          email: "JBonham@ledzep.com",
+          password: "drumhard"
+        }
+      }
+
+      request.post(options, (err, res, body) => {
+        User.findOne({ where: { email: "JBonham@ledzep.com" } })
+          .then((user) => {
+            expect(user).not.toBeNull();
+            expect(user.email).toBe("JBonham@ledzep.com");
+            expect(user.id).toBe(1);
+            expect(user.role).toBe(0);
+            done();
+          })
+          .catch((err) => {
+            console.log(err);
+            done();
+          });
+      })
+    });
   });
 
 

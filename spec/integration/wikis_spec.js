@@ -39,6 +39,28 @@ describe("routes : Wikis", () => {
 
 
     //CRUD OPERATIONS
+    describe("user performing CRUD actions for Topic", () => {
+             beforeEach((done) => {
+               User.create({
+                 email: "admin@example.com",
+                 userName: "Jimmy Page",
+                 password: "123456"
+               })
+               .then((user) => {
+                 request.get({         // mock authentication
+                   url: "http://localhost:3000/auth/fake",
+                   form: {
+                     userName: user.userName,     // mock authenticate as admin user
+                     userId: user.id,
+                     email: user.email
+                   }
+                 },
+                   (err, res, body) => {
+                     done();
+                   }
+                 );
+               });
+             });
 
 
     describe("GET /wikis", () => {
@@ -127,7 +149,7 @@ describe("routes : Wikis", () => {
         });
     });
 
-    describe("POST /topics/:topicId/posts/:id/update", () => {
+    describe("POST /wikis/:id/update", () => {
         it("should update the wiki with the given values", (done) => {
             const options = {
                 url: `${base}/${this.wiki.id}/update`,

@@ -1,4 +1,6 @@
 const Wiki = require("./models").Wiki;
+const User = require("./models").User;
+const Authorizer = require("../policies/wiki");
 
 module.exports = {
     getAllWikis(callback) {
@@ -11,19 +13,19 @@ module.exports = {
             });
     },
 
-    addWiki(newWiki, callback){
+    addWiki(newWiki, callback) {
         return Wiki.create({
-          title: newWiki.title,
-          body: newWiki.body,
-          userId: newWiki.userId
+            title: newWiki.title,
+            body: newWiki.body,
+            userId: newWiki.userId
         })
-        .then((wiki) => {
-          callback(null, wiki);
-        })
-        .catch((err) => {
-          callback(err);
-        })
-      },
+            .then((wiki) => {
+                callback(null, wiki);
+            })
+            .catch((err) => {
+                callback(err);
+            })
+    },
 
     getWiki(id, callback) {
         return Wiki.findById(id)
@@ -35,12 +37,19 @@ module.exports = {
             });
     },
 
-    deleteWiki(id, callback) {
-        return Wiki.destroy({
-            where: { id }
-        })
+    deleteWiki(req, callback) {
+        return Wiki.findById(req.params.id)
             .then((wiki) => {
-                callback(null, wiki);
+                const authorized = new Authorizer(req.user, wiki).destroy();
+                if (authorized) {
+                    wiki.destroy()
+                        .then((res) => {
+                            callback(null, wiki);
+                        })
+                } else {
+                    req.flash("notice", "You are not authorized to do that.");
+                    callback(401);
+                }
             })
             .catch((err) => {
                 callback(err);
@@ -53,15 +62,18 @@ module.exports = {
                 if (!wiki) {
                     return callback("Wiki not found");
                 }
-                wiki.update(updatedWiki, {
-                    fields: Object.keys(updatedWiki)
-                })
-                    .then(() => {
-                        callback(null, wiki);
+                const authorized = new Authorizer(req.user, wiki).update();
+                if (authorized) {
+                    wiki.update(updatedWiki, {
+                        fields: Object.keys(updatedWiki)
                     })
-                    .catch((err) => {
-                        callback(err);
-                    })
+                        .catch((err) => {
+                            callback(err);
+                        })
+                } else {
+                    req.flash("notice", "You are not authorized to do that.");
+                    callback("Forbidden");
+                }
             });
     }
 

@@ -7,12 +7,12 @@ module.exports = (sequelize, DataTypes) => {
     },
     body: {
       type: DataTypes.STRING,
-    allowNull: false
+      allowNull: false
     },
     private: {
       type: DataTypes.BOOLEAN,
-    allowNull: false,
-    defaultValue: false
+      allowNull: false,
+      defaultValue: false
     },
     userId: {
       type: DataTypes.INTEGER,
