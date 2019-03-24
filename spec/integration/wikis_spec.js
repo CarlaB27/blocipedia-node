@@ -174,4 +174,4 @@ describe("routes : Wikis", () => {
     });
 
 
-});
+})
