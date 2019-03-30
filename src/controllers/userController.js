@@ -1,5 +1,6 @@
 const userQueries = require("../db/queries.users.js");
 const passport = require("passport");
+const wikiQueries = require("../db/queries.wikis");
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const publishableKey = process.env.PUBLISHABLE_KEY;
@@ -75,21 +76,30 @@ module.exports = {
        });
    },
 
+   showAll(req, res, next){
+    userQueries.getAllUsers((err, users) => {
+      if(err){
+          res.redirect(500, "static/index");
+      }
+      else{
+          console.log(users);
+          res.render("wikis/edit", {users});
+      }
+    })
+  },
     upgrade(req, res, next) {
         var stripe = require("stripe")("sk_test_Mkxf5IlDZL3ha47YqRkdOHEe00kxPfwTlO");
         // Token is created using Checkout or Elements!
         // Get the payment token ID submitted by the form:
         const token = req.body.stripeToken; // Using Express
         
-        //(async () => {
           const charge = stripe.charges.create({
             amount: 1500,
             currency: 'usd',
             description: 'Premium Membership',
             source: token,
           });
-       // })();
-    
+          
         userQueries.updateUserRole(req.params.id, 1, (err, user) => {
             if(err || user == null) {
               req.flash("notice", "No user found.");
@@ -112,7 +122,8 @@ module.exports = {
               req.flash("notice", "Your account has been downgraded to standard");
               res.redirect(`/users/${req.params.id}`);
             }
-          })
+          });
+          wikiQueries.downgradePrivate(req);
     }
 
 }
