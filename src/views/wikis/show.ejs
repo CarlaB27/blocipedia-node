@@ -21,6 +21,17 @@
       <button type="submit" class="btn btn-danger">Delete</button>
     </form>
     <% } %>
+    <% if(currentUser.isPremium() || currentUser.isAdmin()) { %>
+    <% if(wiki.private === true) { %>
+    <form style="display:initial" action="/wikis/<%= wiki.id %>/public" method="post">
+      <button type="submit" class="btn btn-info">Make Public</button>
+    </form>
+    <% } else { %>
+    <form style="display:initial" action="/wikis/<%= wiki.id %>/private" method="post">
+      <button type="submit" class="btn btn-dark">Make Private</button>
+    </form>
+    <% } %>
+    <% } %>
     <% } %>
     <p>
       <%= wiki.body %>

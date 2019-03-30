@@ -13,6 +13,20 @@ module.exports = {
             });
     },
 
+    getAllPublicWikis(callback) {
+        return Wiki.all({
+            where: {
+                private: false
+            }
+        })
+            .then((wikis) => {
+                callback(null, wikis);
+            })
+            .catch((err) => {
+                callback(err);
+            });
+    },
+
     addWiki(newWiki, callback) {
         return Wiki.create({
             title: newWiki.title,
@@ -56,26 +70,39 @@ module.exports = {
             })
     },
 
-    updateWiki(req, updatedWiki, callback) {
+    // updateWiki(req, updatedWiki, callback) {
+    //     return Wiki.findById(req.params.id)
+    //         .then((wiki) => {
+    //             if (!wiki) {
+    //                 return callback("Wiki not found");
+    //             }
+    //             const authorized = new Authorizer(req.user, wiki).update();
+    //             if (authorized) {
+    //                 wiki.update(updatedWiki, {
+    //                     fields: Object.keys(updatedWiki)
+    //                 })
+    //                     .catch((err) => {
+    //                         callback(err);
+    //                     })
+    //             } else {
+    //                 req.flash("notice", "You are not authorized to do that.");
+    //                 callback("Forbidden");
+    //             }
+    //         });
+    // }
+    updateWikiStatus(req, updatedStatus, callback) {
         return Wiki.findById(req.params.id)
             .then((wiki) => {
                 if (!wiki) {
                     return callback("Wiki not found");
-                }
-                const authorized = new Authorizer(req.user, wiki).update();
-                if (authorized) {
-                    wiki.update(updatedWiki, {
-                        fields: Object.keys(updatedWiki)
+                } return wiki.update({ private: updatedStatus }, { fields: ['private'] })
+                    .then(() => {
+                        callback(null, wiki);
                     })
-                        .catch((err) => {
-                            callback(err);
-                        })
-                } else {
-                    req.flash("notice", "You are not authorized to do that.");
-                    callback("Forbidden");
-                }
-            });
+                    .catch((err) => {
+                        callback(err);
+                    });
+            })
     }
-
-
 }
+
