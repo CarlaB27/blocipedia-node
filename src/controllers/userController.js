@@ -20,7 +20,7 @@ module.exports = {
         };
         userQueries.createUser(newUser, (err, user) => {
             const msg = {
-                to: user.email,
+                to: req.body.email,
                 from: 'support@blocipedia.com',
                 subject: 'Welcome to Blocipedia',
                 text: 'Thanks for joining Blocipedia!',
