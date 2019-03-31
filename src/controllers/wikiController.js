@@ -70,20 +70,12 @@ module.exports = {
     },
 
     show(req, res, next) {
-        wikiQueries.getWiki(req.params.id, (err, wiki) => {
-            let wikiMarkdown = {
-                body: markdown.toHTML(wiki.body),
-                title: markdown.toHTML(wiki.title),
-                userId: wiki.userId,
-                private: wiki.private,
-                id: wiki.id
-            }
-            
+        wikiQueries.getWiki(req.params.id, (err, wiki) => {         
             if (err || wiki == null) {
                 res.redirect(404, "/");
             } else {
             
-                res.render("wikis/show", { wikiMarkdown });
+                res.render("wikis/show", { wiki });
             }
         });
     },
