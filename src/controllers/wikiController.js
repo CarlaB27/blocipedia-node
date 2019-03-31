@@ -70,12 +70,19 @@ module.exports = {
     },
 
     show(req, res, next) {
-        wikiQueries.getWiki(req.params.id, (err, wiki) => {         
+        wikiQueries.getWiki(req.params.id, (err, wiki) => {
+            let wikiMarkdown = {
+                private: wiki.private,
+                title: markdown.toHTML(wiki.title),
+                body: markdown.toHTML(wiki.body),
+                userId: wiki.userId,
+                id: wiki.id
+            };
             if (err || wiki == null) {
                 res.redirect(404, "/");
             } else {
-            
-                res.render("wikis/show", { wiki });
+
+                res.render("wikis/show", { wikiMarkdown });
             }
         });
     },
@@ -107,11 +114,11 @@ module.exports = {
     },
 
     update(req, res, next) {
-        wikiQueries.updateWikiStatus(req, req.body, (err, wiki) => {
+        wikiQueries.updateWiki(req, req.body, (err, wiki) => {
             if (err || wiki == null) {
                 res.redirect(404, `/wikis/${req.params.id}/edit`);
             } else {
-                res.redirect(`/wikis/${wiki.id}`);
+                res.redirect(`/wikis/${req.params.id}`);
             }
         });
     },
