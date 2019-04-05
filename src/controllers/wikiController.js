@@ -5,43 +5,46 @@ const markdown = require("markdown").markdown;
 module.exports = {
     index(req, res, next) {
         if (req.user) {
-            console.log(err);
             let usersWikis = [];
-                wikiQueries.getAllWikis((err, wikis) => {
-                    if (err) {
-                        res.redirect(500, "static/index");
-                    } else {
-                        wikis.forEach(wiki => {
-                            if(wiki.private) {
-                                if(wiki.collaborators.length !== 0) {
-                                    wiki.collaborators.forEach(collaborator => {
-                                        if(collaborator.userId == req.user.id && wiki.id == collaborator.wikiId || req.user.id == wiki.user.id) {
-                                            usersWikis.push(wiki)
-                                        }
-                                    })
-                                } else {
-                                    if(req.user.role == 2 || req.user.id == wiki.user.id) {
+            wikiQueries.getAllWikis((err, wikis) => {
+                if (err) {
+                    // console.log(err);
+                    res.redirect(500, "static/index");
+                } else {
+                    wikis.forEach(wiki => {
+                        if (wiki.private) {
+                            if (wiki.collaborators.length !== 0) {
+                                wiki.collaborators.forEach(collaborator => {
+                                    if (collaborator.userId == req.user.id && wiki.id == collaborator.wikiId || req.user.role == 2 || req.user.id == wiki.userId) {
                                         usersWikis.push(wiki)
                                     }
+                                })
+                            } else {
+                                if (req.user.role == 2 || req.user.id == wiki.userId) {
+                                    usersWikis.push(wiki)
                                 }
                             }
-                        });
-                        res.render("wikis/index", { usersWikis });
-                    }
-                })
-            } else {
-                let usersWikis = [];
-                wikiQueries.getAllPublicWikis((err, wikis) => {
-                    if (err) {
-                        res.redirect(500, "static/index");
-                    }
-                    else {
-                        usersWikis = wikis;
-                        res.render("wikis/index", { usersWikis });
-                    }
-                })
-            }
-        },
+                        } else {
+                            usersWikis.push(wiki)
+                        }
+                    });
+                    //   console.log(usersWikis);
+                    res.render("wikis/index", { usersWikis });
+                }
+            })
+        } else {
+            let usersWikis = [];
+            wikiQueries.getAllPublicWikis((err, wikis) => {
+                if (err) {
+                    //   console.log(err);
+                    res.redirect(500, "static/index");
+                } else {
+                    usersWikis = wikis;
+                    res.render("wikis/index", { usersWikis });
+                }
+            })
+        }
+    },
 
     new(req, res, next) {
         const authorized = new Authorizer(req.user).new;
@@ -79,17 +82,17 @@ module.exports = {
     show(req, res, next) {
         wikiQueries.getWiki(req.params.id, (err, wiki) => {
             if (err || wiki == null) {
-                console.log(err);
+                // console.log(err);
                 res.redirect(404, "/");
             } else {
-                if(wiki.private){
+                if (wiki.private) {
                     for (let i = 0; i < wiki.collaborators.length; i++) {
-                        if(req.user.role == 1 && wiki.userId == req.user.id || wiki.collaborators[i].userId == req.user.id || req.user.role == 2) {
+                        if (req.user.role == 1 && wiki.userId == req.user.id || wiki.collaborators[i].userId == req.user.id || req.user.role == 2) {
                             res.render("wikis/show", { wiki });
-                        } else { 
-                            console.log(err);
+                        } else {
+                            // console.log(err);
                             res.redirect(404, "/wikis");
-                    }                     
+                        }
                     }
                 }
             }
@@ -140,13 +143,13 @@ module.exports = {
                 } else {
                     const authorized = new Authorizer(req.user, wiki).edit();
                     if (authorized) {
-                        req.flash("notice", "This wiki is PRIVATE and only viewable to you");
+                        req.flash("notice", "This wiki is public and viewable by you");
                         res.redirect(`/wikis/${wiki.id}`);
                     }
                 }
             })
         } else {
-            req.flash("notice", "You are not authorized to do that. Upgrage to a premium account to make private wikis");
+            req.flash("notice", "You are not authorized to do that. Upgrade to a premium account to make private wikis");
             res.redirect(`/wikis/${req.params.id}`);
         }
     },
@@ -159,14 +162,14 @@ module.exports = {
                 } else {
                     const authorized = new Authorizer(req.user, wiki).edit();
                     if (authorized) {
-                        req.flash("notice", "You have made this wiki PUBLIC and is viewable to anyone");
+                        req.flash("notice", "This wiki is public and viewable by anyone");
                         res.redirect(`/wikis/${wiki.id}`);
                     }
                 }
 
             })
         } else {
-            req.flash("notice", "You are not authorized to do that. Upgrage to a premium account to make private wikis");
+            req.flash("notice", "You are not authorized to do that. Upgrade to a premium account to make private wikis");
             res.redirect(`/wikis/${req.params.id}`);
         }
     },

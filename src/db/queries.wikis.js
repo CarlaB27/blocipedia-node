@@ -1,11 +1,11 @@
 const Wiki = require("./models").Wiki;
 const User = require("./models").User;
 const Authorizer = require("../policies/wiki");
-const Collaborator = require("./models").Collaborator;
+const Collaborator = require("./models").Collaborators;
 
 module.exports = {
     getAllWikis(callback) {
-        return Wiki.all({
+        return Wiki.findAll({
             include: [{
                 model: Collaborator,
                 as: "collaborators"
@@ -20,7 +20,7 @@ module.exports = {
     },
 
     getAllPublicWikis(callback) {
-        return Wiki.all({
+        return Wiki.findAll({
             where: {
                 private: false
             },
@@ -122,7 +122,7 @@ module.exports = {
     },
 
     downgradePrivate(req, callback) {
-        return Wiki.all()
+        return Wiki.findAll()
             .then((wikis) => {
                 wikis.forEach((wiki) => {
                     if (wiki.userId == req.user.id && wiki.private == true) {

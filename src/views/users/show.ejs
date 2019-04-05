@@ -1,32 +1,30 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <%- include('../static/partials/head.ejs') -%>
+    <% include ../static/partials/head %>
   </head>
   <body>
-    <%- include('../static/partials/navbar.ejs') -%>
+    <% include ../static/partials/navbar.ejs %>
 
      <main class="container">
 
-       <%- include('../static/partials/messages.ejs') -%>
+       <% include ../static/partials/messages.ejs %>
 
        <h1><%= `${user.name}'s profile` %></h1>
       <hr>
       <h2> Latest Wikis</h2>
       <% if (currentUser.isAdmin() || currentUser.isPremium() ) { %>
-      <form style="display:initial" action="/users/<%= currentUser.id %>/downgrade" method="post">
-        <button type="submit" class="btn btn-danger">Downgrade to Standard</button>
-      </form>
-      <% } %> 
-      <% if(currentUser.role === 0) { %>
-      <form style="display:initial" action="/users/payment" method="get">
-        <button type="submit" class="btn btn-primary">Update to Premium</button>
-      </form>
-      <% } %>
-      <a href="/wikis/" class="btn btn-success">Create a New Wiki</a>
-    </main>
-
-     <%- include('../static/partials/baseScripts.ejs') -%>
+          <form style="display:initial" action="/users/<%= currentUser.id %>/downgrade" method="post">
+          <button type="submit" class="btn btn-danger">Downgrade to Standard</button>
+          </form>
+        <% } %> 
+        <% if(currentUser.role === 0) { %>
+        <form style="display:initial" action="/users/payment" method="get">
+          <button type="submit" class="btn btn-primary">Upgrade to Premium</button>
+        </form>
+        <% } %>
+      </main>
+     <% include ../static/partials/baseScripts.ejs %>
 
    </body>
 </html> 
