@@ -21,6 +21,14 @@ module.exports = class ApplicationPolicy {
         return this.user && this.user.role == 0;
     }
 
+    _isPrivate() {
+        return this.record && this.record.private == true;
+    }
+
+    _isPublic() {
+        return this.record && this.record.private == false;
+    }
+
     new() {
         return this.user != null;
     }

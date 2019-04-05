@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <% include ../static/partials/head.ejs %>
+</head>
+
+<body>
+    <% include ../static/partials/navbar.ejs %>
+
+    <main class="container">
+        <% include ../static/partials/messages.ejs %>
+
+        <h1>Collaborators</h1>
+        <ul class="list-group">
+            <% users.forEach((user) => { %>
+            <% if(user.id !== currentUser.id) { %>
+            <li class="list-group-item flex-column align-items-start">
+                <form method="post" action="create">
+                    <div class="btn-group btn-group-lg float-right" role="group">
+                        <button class="btn btn-primary" name="id" value="<%= user.id %>"> Add Collaborator </a>
+                </form>
+                <form method="post" action="destroy">
+                    <button class="btn btn-danger" name="id" value="<%= user.id %>"> Remove Collaborator </a>
+                        </div>
+                        <p>
+                            <%= user.name %>
+                        </p>
+                </form>
+            </li>
+            <% } %>
+            <% }) %>
+        </ul>
+    </main>
+</body>
+
+</html>

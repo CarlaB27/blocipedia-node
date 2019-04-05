@@ -5,36 +5,43 @@ const markdown = require("markdown").markdown;
 module.exports = {
     index(req, res, next) {
         if (req.user) {
-            if (req.user.role == 1 || req.user.role == 2) {
+            console.log(err);
+            let usersWikis = [];
                 wikiQueries.getAllWikis((err, wikis) => {
                     if (err) {
                         res.redirect(500, "static/index");
                     } else {
-                        res.render("wikis/index", { wikis });
+                        wikis.forEach(wiki => {
+                            if(wiki.private) {
+                                if(wiki.collaborators.length !== 0) {
+                                    wiki.collaborators.forEach(collaborator => {
+                                        if(collaborator.userId == req.user.id && wiki.id == collaborator.wikiId || req.user.id == wiki.user.id) {
+                                            usersWikis.push(wiki)
+                                        }
+                                    })
+                                } else {
+                                    if(req.user.role == 2 || req.user.id == wiki.user.id) {
+                                        usersWikis.push(wiki)
+                                    }
+                                }
+                            }
+                        });
+                        res.render("wikis/index", { usersWikis });
                     }
                 })
             } else {
-                console.log("Made it to public wikis");
+                let usersWikis = [];
                 wikiQueries.getAllPublicWikis((err, wikis) => {
                     if (err) {
                         res.redirect(500, "static/index");
                     }
                     else {
-                        res.render("wikis/index", { wikis });
+                        usersWikis = wikis;
+                        res.render("wikis/index", { usersWikis });
                     }
                 })
             }
-        }
-        wikiQueries.getAllPublicWikis((err, wikis) => {
-            if (err) {
-                res.redirect(500, "static/index");
-            }
-            else {
-                res.render("wikis/index", { wikis });
-            }
-        })
-
-    },
+        },
 
     new(req, res, next) {
         const authorized = new Authorizer(req.user).new;
@@ -70,12 +77,21 @@ module.exports = {
     },
 
     show(req, res, next) {
-        wikiQueries.getWiki(req.params.id, (err, wiki) => {         
+        wikiQueries.getWiki(req.params.id, (err, wiki) => {
             if (err || wiki == null) {
+                console.log(err);
                 res.redirect(404, "/");
             } else {
-            
-                res.render("wikis/show", { wiki });
+                if(wiki.private){
+                    for (let i = 0; i < wiki.collaborators.length; i++) {
+                        if(req.user.role == 1 && wiki.userId == req.user.id || wiki.collaborators[i].userId == req.user.id || req.user.role == 2) {
+                            res.render("wikis/show", { wiki });
+                        } else { 
+                            console.log(err);
+                            res.redirect(404, "/wikis");
+                    }                     
+                    }
+                }
             }
         });
     },

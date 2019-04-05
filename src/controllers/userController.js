@@ -81,12 +81,13 @@ module.exports = {
       if(err){
           res.redirect(500, "static/index");
       }
-      else{
-          console.log(users);
+      else {
+          //console.log(users);
           res.render("wikis/edit", {users});
       }
     })
   },
+  
     upgrade(req, res, next) {
         var stripe = require("stripe")("sk_test_Mkxf5IlDZL3ha47YqRkdOHEe00kxPfwTlO");
         // Token is created using Checkout or Elements!
